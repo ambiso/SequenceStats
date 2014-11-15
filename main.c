@@ -101,5 +101,12 @@ int main()
         assert(rc == 0);
     }
 
+    for(i = 0; i < threadNum; ++i)
+    {
+        rc = pthread_join(threads[i], NULL);
+        printf("Thread %d is done.", i);
+        assert(0 == rc);
+    }
+
     return 0;
 }
