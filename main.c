@@ -10,16 +10,16 @@ struct arg_struct {
     int a, b;
 };
 
-void calculate()
+void calculate(void *args)
 {
     char filename[256];
     char begin [125];
-    sprintf(begin, "%d", )
+    sprintf(begin, "%d", args.a);
     strcpy(filename, begin);
     strcat(filename, "-");
     strcat(filename, end);
     strcat(filename, ".csv");
-    printf("%s", filename);
+
     mpz_t n;
     mpz_t c;
     mpz_t m;
@@ -88,10 +88,9 @@ int main()
 
     pthread_t threads[threadNum];
 
-    memset(arguments, '\0', 125*2*threadNum);
     int rc, i;
 
-    struct arg_struct *args = arguments;
+    struct arg_struct *args;
 
     for(i = 0; i < threadNum; ++i)
     {
