@@ -10,9 +10,11 @@ struct arg_struct {
     int a, b;
 };
 
-void calculate(struct arg_struct *args)
+void calculate()
 {
     char filename[256];
+    char begin [125];
+    sprintf(begin, "%d", )
     strcpy(filename, begin);
     strcat(filename, "-");
     strcat(filename, end);
@@ -86,7 +88,6 @@ int main()
 
     pthread_t threads[threadNum];
 
-    char arguments[threadNum][2][125];
     memset(arguments, '\0', 125*2*threadNum);
     int rc, i;
 
@@ -94,11 +95,10 @@ int main()
 
     for(i = 0; i < threadNum; ++i)
     {
-        int a, b;
-        a = i*(max/threadNum)+1;
-        b = (i+1)*(max/threadNum);
+        args.a = i*(max/threadNum)+1;
+        args.b = (i+1)*(max/threadNum);
         printf("Creating thread %d for %d to %d\n", i, a, b);
-        rc = pthread_create(&threads[i], NULL, calculate, (void*)arguments);
+        rc = pthread_create(&threads[i], NULL, calculate, (void*)args);
         assert(rc == 0);
     }
 
