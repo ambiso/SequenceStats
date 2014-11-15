@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1416009422 source:e:\programmierung\sequencestats\main.c
+1416014007 source:e:\programmierung\sequencestats\main.c
 	<stdio.h>
 	<stdlib.h>
 	<gmp.h>
 	<pthread.h>
 	<string.h>
-	<inttypes.h>
+	<assert.h>
 

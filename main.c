@@ -7,21 +7,24 @@
 #include <assert.h>
 
 struct arg_struct {
-    int a, b;
+    int a, b, tid;
 };
 
-void calculate(void *void_args)
+void *calculate(void *void_args)
 {
     struct arg_struct args; // local arguments
     char filename[256];
     char begin [125];
+    char end[125];
     // copy allocatet arguments to local arguments 'args'
-    *args = *(struct arg_struct*)void_args;
+    args = *((struct arg_struct*)void_args);
     // delete allocatet arguments
     free(void_args);
     void_args = NULL;
-    
+
     sprintf(begin, "%d", args.a);
+    sprintf(end, "%d", args.b);
+
     strcpy(filename, begin);
     strcat(filename, "-");
     strcat(filename, end);
@@ -72,8 +75,8 @@ void calculate(void *void_args)
         pFile = fopen(filename,"a");
         if(pFile == NULL)
         {
-            perror("Error opening file.");
-            return;
+            printf("Error opening file in thread %d.\n", args.tid);
+            return NULL;
         }
         mpz_out_str(pFile, 10, i);
         fputs(",", pFile);
@@ -81,6 +84,7 @@ void calculate(void *void_args)
         fputs("\n", pFile);
         fclose(pFile);
     }
+    return NULL;
 }
 
 int main()
@@ -89,24 +93,25 @@ int main()
     int threadNum = 1;
     pthread_t threads[threadNum];
     int rc, i;
-    
+
     printf("Sequence of operations: \nx mod 2 == 0 ? x /= 2 : x *= 3 + 1\n");
     printf("From 1 to _\b");
     scanf("%d", &max);
     printf("Number of threads: ");
     scanf("%d", &threadNum);
-    
+
     for(i = 0; i < threadNum; ++i)
     {
         // allocate new arg_struct
         struct arg_struct* args = (struct arg_struct*)malloc(sizeof(struct arg_struct));
         args->a = i*(max/threadNum)+1;
         args->b = (i+1)*(max/threadNum);
-        
-        printf("Creating thread %d for %d to %d\n", i, a, b);
-        rc = pthread_create(&threads[i], NULL, calculate, (void*)args);
+        args->tid = i;
+
+        printf("Creating thread %d for %d to %d\n", i, args->a, args->b);
+        rc = pthread_create(&threads[i], NULL, &calculate, (void*)args);
         assert(rc == 0);
     }
-
+    printf("All threads joined successfully.\n");
     return 0;
 }
