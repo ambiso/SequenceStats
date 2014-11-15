@@ -3,40 +3,14 @@
 #include <gmp.h>
 #include <pthread.h>
 #include <string.h>
-#include <inttypes.h>
+//#include <inttypes.h>
+#include <assert.h>
 
-void calculate(const char * begin, const char * end);
+struct arg_struct {
+    int a, b;
+};
 
-
-
-int main()
-{
-    printf("Sequence of operations: \nx mod 2 == 0 ? x /= 2 : x *= 3 + 1\n");
-    printf("From 1 to _\b");
-    int max = 0;
-    scanf("%u", &max);
-    printf("Number of threads: ");
-    int threadNum = 1;
-    scanf("%d", &threadNum);
-
-    pthread_t threads[threadNum];
-
-    char arguments[threadNum][2][125];
-    memset(arguments, '\0', 125*2*threadNum);
-    int rc, i;
-
-    for(i = 0; i < threadNum; ++i)
-    {
-        int a, b;
-        a = i*(max/threadNum)+1;
-        b = (i+1)*(max/threadNum);
-        printf("Creating thread %d for %d to %d\n", i, a, b);
-    }
-
-    return 0;
-}
-
-void calculate(const char * begin, const char * end)
+void calculate(struct arg_struct *args)
 {
     char filename[256];
     strcpy(filename, begin);
@@ -69,7 +43,8 @@ void calculate(const char * begin, const char * end)
     fputs("", pFile);
     fclose(pFile);
 
-    for(;mpz_cmp(i, m) != 0; mpz_add(i, i, one)) {
+    for(; mpz_cmp(i, m) != 0; mpz_add(i, i, one))
+    {
         mpz_set(n, i);
         mpz_set(c, zero);
         for(; mpz_cmp(n, one) != 0; mpz_add(c, c, one))
@@ -97,4 +72,35 @@ void calculate(const char * begin, const char * end)
         fputs("\n", pFile);
         fclose(pFile);
     }
+}
+
+int main()
+{
+    printf("Sequence of operations: \nx mod 2 == 0 ? x /= 2 : x *= 3 + 1\n");
+    printf("From 1 to _\b");
+    int max = 0;
+    scanf("%d", &max);
+    printf("Number of threads: ");
+    int threadNum = 1;
+    scanf("%d", &threadNum);
+
+    pthread_t threads[threadNum];
+
+    char arguments[threadNum][2][125];
+    memset(arguments, '\0', 125*2*threadNum);
+    int rc, i;
+
+    struct arg_struct *args = arguments;
+
+    for(i = 0; i < threadNum; ++i)
+    {
+        int a, b;
+        a = i*(max/threadNum)+1;
+        b = (i+1)*(max/threadNum);
+        printf("Creating thread %d for %d to %d\n", i, a, b);
+        rc = pthread_create(&threads[i], NULL, calculate, (void*)arguments);
+        assert(rc == 0);
+    }
+
+    return 0;
 }
