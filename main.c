@@ -20,8 +20,9 @@ void *calculate(void *void_args)
     args = *((struct arg_struct*)void_args);
     // delete allocatet arguments
     free(void_args);
-    void_args = NULL;
 
+    void_args = NULL;
+    //printf("THREAD %d IS ALIVE WITH %d and %d!\n", args.tid, args.a, args.b);
     sprintf(begin, "%d", args.a);
     sprintf(end, "%d", args.b);
 
@@ -112,6 +113,14 @@ int main()
         rc = pthread_create(&threads[i], NULL, &calculate, (void*)args);
         assert(rc == 0);
     }
+
+    for(i = 0; i < threadNum; ++i)
+    {
+        rc = pthread_join(threads[i], NULL);
+        printf("%d of %d finished.\n", i, threadNum);
+        assert(rc == 0);
+    }
+
     printf("All threads joined successfully.\n");
     return 0;
 }
