@@ -10,10 +10,17 @@ struct arg_struct {
     int a, b;
 };
 
-void calculate(void *args)
+void calculate(void *void_args)
 {
+    struct arg_struct args; // local arguments
     char filename[256];
     char begin [125];
+    // copy allocatet arguments to local arguments 'args'
+    *args = *(struct arg_struct*)void_args;
+    // delete allocatet arguments
+    free(void_args);
+    void_args = NULL;
+    
     sprintf(begin, "%d", args.a);
     strcpy(filename, begin);
     strcat(filename, "-");
@@ -78,34 +85,27 @@ void calculate(void *args)
 
 int main()
 {
+    int max = 0;
+    int threadNum = 1;
+    pthread_t threads[threadNum];
+    int rc, i;
+    
     printf("Sequence of operations: \nx mod 2 == 0 ? x /= 2 : x *= 3 + 1\n");
     printf("From 1 to _\b");
-    int max = 0;
     scanf("%d", &max);
     printf("Number of threads: ");
-    int threadNum = 1;
     scanf("%d", &threadNum);
-
-    pthread_t threads[threadNum];
-
-    int rc, i;
-
-    struct arg_struct *args;
-
+    
     for(i = 0; i < threadNum; ++i)
     {
-        args.a = i*(max/threadNum)+1;
-        args.b = (i+1)*(max/threadNum);
+        // allocate new arg_struct
+        struct arg_struct* args = (struct arg_struct*)malloc(sizeof(struct arg_struct));
+        args->a = i*(max/threadNum)+1;
+        args->b = (i+1)*(max/threadNum);
+        
         printf("Creating thread %d for %d to %d\n", i, a, b);
         rc = pthread_create(&threads[i], NULL, calculate, (void*)args);
         assert(rc == 0);
-    }
-
-    for(i = 0; i < threadNum; ++i)
-    {
-        rc = pthread_join(threads[i], NULL);
-        printf("Thread %d is done.", i);
-        assert(0 == rc);
     }
 
     return 0;
